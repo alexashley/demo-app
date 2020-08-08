@@ -1,0 +1,19 @@
+{
+  "name": "demo-app",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/alexashley/demo-app",
+  "author": "Alex Ashley",
+  "engines": {
+    "node": ">=14"
+  },
+  "type": "module",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@hapi/hapi": "19.2.0"
+  }
+}
