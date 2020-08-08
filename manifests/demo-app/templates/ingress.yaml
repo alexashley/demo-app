@@ -9,12 +9,11 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: {{ $fullName }}
+  namespace: {{ include "demo-app.fullname" . }}
   labels:
     {{- include "demo-app.labels" . | nindent 4 }}
-  {{- with .Values.ingress.annotations }}
   annotations:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
+    kubernetes.io/ingress.class: nginx
 spec:
   {{- if .Values.ingress.tls }}
   tls:
