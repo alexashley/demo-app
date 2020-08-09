@@ -15,6 +15,16 @@ spec:
       labels:
         {{- include "demo-app.selectorLabels" . | nindent 8 }}
     spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - {{ .Chart.Name }}
+              topologyKey: "kubernetes.io/hostname"
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
