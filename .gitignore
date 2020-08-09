@@ -2,3 +2,4 @@
 node_modules
 tf/.terraform/
 *.tfstate*
+charts

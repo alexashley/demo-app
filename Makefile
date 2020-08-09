@@ -1,7 +1,7 @@
 MAKEFLAGS += --silent
 .PHONY: image run push-image
 .PHONY: tf-init tf-plan tf-apply
-.PHONY: k8s-template k8s-apply
+.PHONY: k8s-helm-init k8s-template k8s-apply
 
 REPO = alexashley/demo-app
 VERSION := $(shell git rev-parse --short HEAD)
@@ -57,13 +57,21 @@ tf-apply: tf-init
 		hashicorp/terraform:$(TF_VERSION) \
 		apply -var-file=gcp.tfvars
 
+k8s-helm-init:
+	docker run \
+    	-it \
+    	--rm \
+    	-w /usr/src/manifests \
+    	-v $$(pwd)/manifests:/usr/src/manifests \
+    	alpine/helm:3.2.4 dep up demo-app
+
 k8s-template:
 	docker run \
 	-it \
 	--rm \
 	-w /usr/src/manifests \
 	-v $$(pwd)/manifests:/usr/src/manifests \
-	alpine/helm:3.2.4 template demo-app
+	alpine/helm:3.2.4 template --release-name demo-app demo-app
 
 k8s-apply:
 	kubectl config use-context demo-app
@@ -72,4 +80,4 @@ k8s-apply:
     	--rm \
     	-w /usr/src/manifests \
     	-v $$(pwd)/manifests:/usr/src/manifests \
-    	alpine/helm:3.2.4 template demo-app | kubectl apply -f -
+    	alpine/helm:3.2.4 template --release-name demo-app demo-app | kubectl apply -f -
