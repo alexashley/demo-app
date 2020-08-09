@@ -1,12 +1,18 @@
 provider "google" {
   version = "3.33.0"
 }
-
 resource "google_project_service" "gke_api" {
   project = var.project_id
   service = "container.googleapis.com"
 
-  disable_dependent_services = true
+  disable_on_destroy = false
+}
+
+resource "google_project_service" "logging_api" {
+  project = var.project_id
+  service = "logging.googleapis.com"
+
+  disable_on_destroy = false
 }
 
 resource "google_container_cluster" "demo_app_cluster" {
@@ -27,7 +33,8 @@ resource "google_container_cluster" "demo_app_cluster" {
   }
 
   depends_on = [
-    google_project_service.gke_api
+    google_project_service.gke_api,
+    google_project_service.logging_api,
   ]
 }
 
