@@ -3,7 +3,7 @@ replicaCount: 2
 image:
   repository: alexashley/demo-app
   pullPolicy: IfNotPresent
-  tag: 525683e
+  tag: 77f21d0
 
 probe:
   path: /healthz

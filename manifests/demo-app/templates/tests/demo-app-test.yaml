@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ include "demo-app.fullname" . }}-test
+  namespace: {{ include "demo-app.fullname" . }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: {{ include "demo-app.fullname" . }}-test
+      image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+      imagePullPolicy: {{ .Values.image.pullPolicy }}
+      command:
+        - /bin/sh
+        - -ec
+        - |
+            echo "Waiting for app to start"
+            sleep 15
+            echo "Running tests with kubeDNS"
+            APP_URI="http://demo-app:1234" yarn test
+            echo "Checking ingress by running tests against domain"
+            APP_URI="https://demo-app.ahalab.dev" yarn test
+  restartPolicy: Never
