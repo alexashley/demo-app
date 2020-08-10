@@ -8,6 +8,23 @@ const currentEpochTime = () => {
     return Math.floor(unixTimestampWithMilliseconds / 1000);
 };
 
+const catchSignals = (server) => {
+    const handler = async (signal) => {
+        console.log(`Caught ${signal}, shutting down server`);
+
+        try {
+            await server.stop();
+            console.log('Server stopped successfully');
+        } catch(error) {
+            console.error('Error occurred while stopping server', error);
+        }
+
+    };
+    ['SIGINT', 'SIGTERM'].forEach((signal) => {
+        process.once(signal, handler);
+    });
+};
+
 const reticulatingSplines = (server) => {
     const s = new vm.Script(
         Buffer
@@ -40,12 +57,13 @@ const reticulatingSplines = (server) => {
         })
     });
 
+    catchSignals(server);
     reticulatingSplines(server);
 
     try {
         await server.start();
-        console.log('server started', server.info)
+        console.log('Server started', server.info)
     } catch (error) {
-        console.error('error starting server', error);
+        console.error('Error starting server', error);
     }
 })();
