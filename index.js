@@ -22,7 +22,7 @@ const currentEpochTime = () => {
 
 const catchSignals = (server) => {
     const handler = async (signal) => {
-        logger.info('Stopping down server', {signal});
+        logger.info('Stopping server', {signal});
 
         try {
             await server.stop();
