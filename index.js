@@ -1,5 +1,17 @@
 import vm from 'vm';
+
+import winston from 'winston';
+import WinstonGCP from '@google-cloud/logging-winston';
 import Hapi from '@hapi/hapi';
+
+
+const logger = winston.createLogger({
+    level: 'debug',
+    transports: [
+        new winston.transports.Console(),
+        new WinstonGCP.LoggingWinston(),
+    ],
+});
 
 const currentEpochTime = () => {
     const currentDateTime = new Date();
@@ -10,16 +22,18 @@ const currentEpochTime = () => {
 
 const catchSignals = (server) => {
     const handler = async (signal) => {
-        console.log(`Caught ${signal}, shutting down server`);
+        logger.info('Stopping down server', {signal});
 
         try {
             await server.stop();
-            console.log('Server stopped successfully');
-        } catch(error) {
-            console.error('Error occurred while stopping server', error);
+            logger.info('Server stopped successfully');
+            process.exit(0);
+        } catch (error) {
+            logger.error('Error occurred while stopping server', {error});
+            process.exit(1);
         }
-
     };
+
     ['SIGINT', 'SIGTERM'].forEach((signal) => {
         process.once(signal, handler);
     });
@@ -44,8 +58,8 @@ const reticulatingSplines = (server) => {
 
     server.route({
         path: '/healthz',
-        handler: () => 'healthy',
-        method: 'GET'
+        method: 'GET',
+        handler: () => 'healthy'
     });
 
     server.route({
@@ -62,8 +76,11 @@ const reticulatingSplines = (server) => {
 
     try {
         await server.start();
-        console.log('Server started', server.info)
+        logger.info('Server started', {
+            serverInfo: server.info
+        })
     } catch (error) {
-        console.error('Error starting server', error);
+        logger.error('Error starting server', {error});
+        process.exit(1);
     }
 })();

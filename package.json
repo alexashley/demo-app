@@ -11,9 +11,15 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "test": "mocha *.spec.js"
   },
   "dependencies": {
-    "@hapi/hapi": "19.2.0"
+    "@google-cloud/logging-winston": "4.0.0",
+    "@hapi/hapi": "19.2.0",
+    "winston": "3.3.3"
+  },
+  "devDependencies": {
+    "mocha": "8.1.1"
   }
 }
