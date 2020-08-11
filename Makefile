@@ -1,5 +1,5 @@
 MAKEFLAGS += --silent
-.PHONY: tf-init tf-plan tf-apply
+.PHONY: tf-init tf-plan tf-apply tf-destroy
 .PHONY: k8s-apply
 
 TF_VERSION = "0.12.29"
@@ -38,6 +38,17 @@ tf-apply: tf-init
 		-e TF_VAR_project_id=$(PROJECT_ID) \
 		hashicorp/terraform:$(TF_VERSION) \
 		apply -var-file=gcp.tfvars
+
+tf-destroy: tf-init
+	docker run \
+		-it \
+		--rm \
+		-w /usr/src/tf \
+		-v ~/.config/gcloud:/root/.config/gcloud \
+		-v $$(pwd)/tf:/usr/src/tf \
+		-e TF_VAR_project_id=$(PROJECT_ID) \
+		hashicorp/terraform:$(TF_VERSION) \
+		destroy -var-file=gcp.tfvars
 
 k8s-template:
 	docker run \

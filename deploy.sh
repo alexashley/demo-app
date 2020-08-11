@@ -20,7 +20,7 @@ function require_program() {
   fi
 }
 
-for program in "git" "gcloud" "docker" "jq"; do
+for program in "git" "gcloud" "docker" "jq" "make"; do
   require_program "$program"
 done
 
@@ -33,6 +33,13 @@ check_file_exists \
   "GCP Application Default Credentials not found. Did you run gcloud auth application-default login?"
 
 check_file_exists "$HOME/.docker/config.json" "No Docker config found, did you run gcloud auth configure-docker?"
+
+GCR_CRED_HELPER=$(jq -r '.credHelpers."gcr.io"' < "$HOME/.docker/config.json")
+
+if [[ "$GCR_CRED_HELPER" != "gcloud" ]]; then
+  echo "GCloud isn't set as the credential helper for GCR, did you run gcloud auth configure-docker?"
+  exit 1
+fi
 
 echo "Standing up infrastructure in project '$PROJECT_ID', it may take up to 10 minutes to create the cluster"
 make tf-apply
@@ -69,6 +76,11 @@ docker run \
 
 echo "Waiting for deploy to finish"
 kubectl -n demo-app rollout status deploy demo-app
+
+LOAD_BALANCER_IP=$(kubectl get service demo-app-ingress-nginx-controller -o json | jq -r '.status.loadBalancer.ingress[0].ip')
+echo "Deployment finished. External load balancer ip: $LOAD_BALANCER_IP"
+echo "Note: if you set a hostname, this is what you'll set on the DNS record."
+echo "Otherwise you can ignore this."
 
 echo "Application deployed, watch the post-deployment tests:"
 kubectl -n demo-app logs -f demo-app-test
