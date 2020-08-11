@@ -1,6 +1,7 @@
 provider "google" {
   version = "3.33.0"
 }
+
 resource "google_project_service" "gke_api" {
   project = var.project_id
   service = "container.googleapis.com"
@@ -11,6 +12,13 @@ resource "google_project_service" "gke_api" {
 resource "google_project_service" "logging_api" {
   project = var.project_id
   service = "logging.googleapis.com"
+
+  disable_on_destroy = false
+}
+
+resource "google_project_service" "container_registry_api" {
+  project = var.project_id
+  service = "containerregistry.googleapis.com"
 
   disable_on_destroy = false
 }
@@ -34,6 +42,7 @@ resource "google_container_cluster" "demo_app_cluster" {
 
   depends_on = [
     google_project_service.gke_api,
+    google_project_service.container_registry_api,
     google_project_service.logging_api,
   ]
 }
@@ -49,9 +58,11 @@ resource "google_container_node_pool" "demo_app_node_pool" {
   node_config {
     disk_size_gb = 10
     machine_type = var.node_pool_machine_type
-    metadata     = {
+
+    metadata = {
       disable-legacy-endpoints = "true"
     }
+
     oauth_scopes = [
       "https://www.googleapis.com/auth/devstorage.read_only",
       "https://www.googleapis.com/auth/logging.write",
@@ -64,4 +75,5 @@ resource "google_container_node_pool" "demo_app_node_pool" {
     auto_repair  = false
     auto_upgrade = false
   }
+
 }
