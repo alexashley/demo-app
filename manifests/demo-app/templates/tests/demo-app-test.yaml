@@ -19,5 +19,5 @@ spec:
             echo "Running tests with kubeDNS"
             APP_URI="http://demo-app:1234" yarn test
             echo "Checking ingress by running tests against domain"
-            APP_URI="https://demo-app.ahalab.dev" yarn test
+            APP_URI="https://{{ .Values.ingress.hostname }}" yarn test
   restartPolicy: Never

@@ -17,11 +17,8 @@ service:
 
 ingress:
   enabled: true
-  hosts:
-    - host: demo-app.ahalab.dev
-      paths:
-        - "/"
-  tls: []
+  hostname: demo-app.ahalab.dev
+  path: "/"
 
 resources:
   requests:
